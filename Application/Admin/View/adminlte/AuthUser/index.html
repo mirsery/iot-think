@@ -1,0 +1,181 @@
+<extend name="Public/base" />
+<block name="style">
+    <title> {$Think.config.title} | 用户管理 </title>
+    <link rel="stylesheet" href="__PUBLIC__/plugins/datatables/dataTables.bootstrap.css">
+</block>
+<block name="content-header">
+    <section class="content-header">
+        <h1>
+      用户管理
+    </h1>
+        <ol class="breadcrumb">
+            <li><a href="{:U('Admin/index/index')}"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li>用户权限</li>
+            <li class="active">用户管理</li>
+        </ol>
+    </section>
+</block>
+<block name="content">
+    <section class="content">
+        <div class="row">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title"></h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="list" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>用户名</th>
+                                <th>电子邮箱</th>
+                                <th>所属角色</th>
+                                <th>最后登录时间</th>
+                                <th>最后登录IP</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <!-- tbody是必须的 -->
+                    </table>
+                    <!-- Button trigger modal -->
+                </div>
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+</block>
+<block name="modal">
+    <include file="AuthUser:add_modal" />
+    <include file="Public:del_modal" />
+</block>
+<block name="script">
+    <script src="__PUBLIC__/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="__PUBLIC__/plugins/datatables/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" src="__JS__/app.datatables.js"></script>
+    <script src="__JS__/jQuery.datatables.cn.js"></script>
+    <script>
+    /* 初始化Datables */
+    var table = $('#list').DataTable({
+        "serverSide": true,
+        "processing": true,
+        "ajax": {
+            url: "listsDatatables",
+            type: "post",
+            error:function(){
+                toastr.error("载入失败",'',{timeOut: '2000', positionClass: 'toast-top-center' });
+            }
+        },
+        // data: data.info,
+        columns: [{
+            "data": "id"
+        }, {
+            "data": "username"
+        }, {
+            "data": "email"
+        }, {
+            "data": "remark"
+        }, {
+            "data": "last_login_time"
+        }, {
+            "data": "last_login_ip"
+        }, {
+            "data": "status"
+        }, {
+            "data": null
+        }, ],
+        columnDefs: [{
+            "targets": 0,
+            "visible": false,
+        }, {
+            "targets": [0, 4, 7],
+            "searchable": false,
+        }, {
+            "targets": 3,
+            "render": function(data, type, row) {
+                var html = '';
+                if (data == null || data == '')
+                    return html;
+                var remarkList = data.split(',');
+                for (var i = remarkList.length - 1; i >= 0; i--) {
+                    html = html + '<span class="label label-primary">' + remarkList[i] + '</span> ';
+                }
+
+                return html;
+            }
+        }, {
+            "targets": 6,
+            "render": function(data, type, row) {
+                var html = '';
+                if (data == 1)
+                    html = '<span class="label label-success">启用</span>';
+                else
+                    html = '<span class="label label-danger">禁用</span>';
+                return html;
+            }
+        }, {
+            "targets": 7,
+            "render": function(data, type, row) {
+                var html = " <a class='glyphicon glyphicon-edit text-success' onclick='edit(\"" + row.id + "\",\"" + row.username + "\",\"" + row.email + "\"," + row.status + ")'></a> " +
+                    "<a class='glyphicon glyphicon-remove text-danger' onclick='del(\"" + row.id + "\")'></a>";
+                return html;
+            }
+        }],
+        "dom": "<'row'<'col-xs-2'l><'#mytool.col-xs-4'><'col-xs-6'f>r>" +
+            "t<'row'<'col-xs-6'i><'col-xs-6'p>>",
+        initComplete: function() {
+            $("#mytool").append('<button id="create" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add-modal">添加</button>&nbsp');
+            toastr.success("载入成功",'',{timeOut: '1800', positionClass: 'toast-top-center' });
+        }
+    });
+
+    datatableUtil.customFilter('list_filter');
+    datatableUtil.changeFilterTrigger(table);
+
+    /* 让检索支持按列检索 */
+    $("#searchColumn").select2({
+        data: [{
+            "id": "0",
+            "text": "所有"
+        }, {
+            "id": "1",
+            "text": "用户名"
+        }, {
+            "id": "4",
+            "text": "最后登录时间"
+        }],
+        width: "110px",
+    });
+
+
+    /* 编辑方法 */
+    function edit(id, username, email, status) {
+
+        $("#add-modal-label").text("修改");
+        $("#id").val(id);
+        $("#username").val(username);
+        $("#password").attr('placeholder', "若要修改，请输入新密码");
+        $("#email").val(email);
+        $("#status").val(status);
+
+        $.ajax({
+            url: "AuthUserRole/lists",
+            data: {
+                'id': id
+            },
+            success: function(data) {
+                $('#role').select2("val", data.split(','));
+            },
+            error: function(data) {
+                alert("{$Think.Config.WARNING_MSG}");
+            }
+        });
+
+        $("#add-modal").modal("show");
+    }
+    </script>
+</block>

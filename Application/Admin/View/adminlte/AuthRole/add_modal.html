@@ -1,0 +1,201 @@
+<extend name="Public:add_modal" />
+<block name="modal-body">
+    <div class="modal-body">
+        <div class="form-group">
+            <input type="hidden" class="form-control" id="sys-id">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="sys-role" name="sys-role" placeholder="角色">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="sys-remark" name="sys-remark" placeholder="角色功能描述">
+        </div>
+        <div class="form-group">
+            <select class="form-control" id="status">
+                <option value='1'>启用</option>
+                <option value='0'>禁用</option>
+            </select>
+        </div>
+    </div>
+</block>
+<block name="add-modal-script">
+    <script>
+    $.ajax({
+        url: "queryNodeByJson",
+        data: {},
+        success: function(data) {
+            var nodeList = eval(data);
+            var htmlNode = '';
+            var checkboxGroup = -1;
+
+            $.each(nodeList, function(index, val) {
+                if (val['sys-level'] == 1) {
+                    $('.panel-title').append('<input type="checkbox" name="box" level=' + val['sys-level'] + ' id=' + val['sys-id'] + ' pid=' + val['sys-pid'] + ' value=' + val['sys-id'] + ">  " + val['sys-title']);
+                } else if (val['level'] == 2) {
+                    if (checkboxGroup > 0)
+                        htmlNode += '</div>';
+                    htmlNode += '<div class="form-group"><input name="box" pid=' + val['pid'] + ' type="checkbox" level=' + val['level'] + ' id=' + val['sys-id'] + " value=" + val['sys-id'] + '>  <label class="label label-primary">' + val['sys-title'] + '</label></div>';
+                    checkboxGroup = 0;
+                } else if (val['sys-level'] == 3) {
+                    if (checkboxGroup == 0)
+                        htmlNode += '<div class="form-group">';
+                    checkboxGroup++;
+                    htmlNode += '<label class="checkbox-inline" style="margin-left: 20px"><input name="box" type="checkbox" pid=' + val['sys-pid'] + ' level=' + val['sys-level'] + ' id=' + val['sys-id'] + " value=" + val['sys-id'] + ">" + val['sys-title'] + '</label>';
+                };
+            });
+
+            $('#node').append(htmlNode);
+
+            $('input[type="checkbox"]').on('click', function() {
+                var level = $(this).attr('level');
+                // console.log('test');
+                if (level == 1) {
+                    $(this).is(':checked') ? $('input[type="checkbox"]').prop('checked', true) : $('input[type="checkbox"]').attr('checked', false);
+                } else if (level == 2) {
+                    var id = $(this).attr('sys-id');
+                    $(this).is(':checked') ? $('input[pid=' + id + ']').prop('checked', true) : $('input[pid=' + id + ']').attr('checked', false);
+                } else if (level == 3) {
+                    var pid = $(this).attr('sys-pid');
+                    if ($(this).is(':checked'))
+                        $('input[id=' + pid + ']').prop('checked', true);
+
+                    var ppid = $('input[id=' + pid + ']').attr('sys-pid');
+                    if ($(this).is(':checked'))
+                        $('input[id=' + ppid + ']').prop('checked', true);
+                }
+            });
+        },
+        error: function(data) {
+            alert("{$Think.Config.WARNING_MSG}");
+        }
+    });
+
+    $.ajax({
+        url: "queryRoleNameByJson",
+        data: {},
+        success: function(data) {
+
+            $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+            $(".select2").select2({
+
+                data: data,
+                width: "100px",
+                allowClear: true
+
+            });
+        },
+        error: function(data) {
+            alert("{$Think.Config.WARNING_MSG}");
+        }
+    });
+
+
+    $('#add-modal').formValidation({
+        framework: 'bootstrap',
+        message: '信息不能为空',
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            role_name: {
+                validators: {
+                    notEmpty: {
+                        message: '角色名称不能为空'
+                    }
+                }
+            },
+            description: {
+                validators: {
+                    notEmpty: {
+                        message: '请描述职能'
+                    }
+                }
+            },
+        }
+    });
+
+
+    /**
+     * 保存数据
+     **/
+    $("#save").click(function save() {
+        $('#add-modal').formValidation('validate');
+        if ($('#add-modal').data('formValidation').isValid()) {
+            var addJson = {
+                "sys-id": $("#id").val(),
+                "sys-name": $("#name").val(),
+                "sys-remark": $("#remark").val(),
+                "status": $("#status").val(),
+            };
+
+            $.ajax({
+                url: "save",
+                data: {
+                    "sys-id": addJson.id,
+                    "sys-name": addJson.name,
+                    "sys-remark": addJson.remark,
+                    "status": addJson.status,
+                },
+                success: function(data) {
+                    $("#add-modal").modal("hide");
+                    toastr.success('保存成功','',{timeOut: '1800', positionClass: 'toast-top-center' });
+                    table.ajax.reload(null, false);
+                    $("#add-modal-label").text("新增");
+                }
+            });
+
+
+        }
+    })
+
+    $('#save-config').click(function() {
+
+        var checkList = new Array();
+
+        $('input[name="box"]:checked').each(function() {
+            if (true == $(this).is(':checked')) {
+                checkList.push($(this).val());
+            }
+
+        });
+        checkList.push($('#level_1').val());
+
+        $.ajax({
+            url: "saveConfig",
+            data: {
+                "id": $('#config_id').val(),
+                "nodeIdList": checkList,
+            },
+            success: function(data) {
+                $("#config-modal").modal("hide");
+            }
+        });
+    })
+
+    function config(id) {
+        console.log(id);
+        $("#config-id").val(id);
+        console.log($("#config-id").val(id));
+        $.ajax({
+            url: "queryNodeIdByJson",
+            data: {
+                'id': id
+            },
+            success: function(data) {
+
+                $.each(eval(data), function(index, val) {
+                    $('#' + val['node-id']).prop('checked', true);
+                    console.log('config');
+                });
+            },
+            error: function(data) {
+                alert("{$Think.Config.WARNING_MSG}");
+            }
+        });
+
+        $("#config-modal").modal("show");
+    }
+    </script>
+</block>

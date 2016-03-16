@@ -1,0 +1,55 @@
+	 .no-1
+    {
+        background-image: url('http://webmap1.map.bdstatic.com/wolfman/static/common/images/markers_new2x_fbb9e99.png');
+        width: 18px;
+        height: 27px;
+        display: inline-block;
+        background-size: 300px,auto;
+        background-position: 0 -139px;
+    }
+     .no-2
+    {
+        background-image: url('http://webmap1.map.bdstatic.com/wolfman/static/common/images/markers_new2x_fbb9e99.png');
+        width: 18px;
+        height: 27px;
+        display: inline-block;
+        background-size: 300px,auto;
+        background-position: -18px -139px;
+    }
+    .no-3
+    {
+        background-image: url('http://webmap1.map.bdstatic.com/wolfman/static/common/images/markers_new2x_fbb9e99.png');
+        width: 18px;
+        height: 27px;
+        display: inline-block;
+        background-size: 300px,auto;
+        background-position: -36px -139px;
+    }
+    .no-4
+    {
+        background-image: url('http://webmap1.map.bdstatic.com/wolfman/static/common/images/markers_new2x_fbb9e99.png');
+        width: 18px;
+        height: 27px;
+        display: inline-block;
+        background-size: 300px,auto;
+        background-position: -54px -139px;
+    }
+    .no-5
+    {
+        background-image: url('http://webmap1.map.bdstatic.com/wolfman/static/common/images/markers_new2x_fbb9e99.png');
+        width: 18px;
+        height: 27px;
+        display: inline-block;
+        background-size: 300px,auto;
+        background-position: -72px -139px;
+    }
+    .no-6
+    {
+        background-image: url('http://webmap1.map.bdstatic.com/wolfman/static/common/images/markers_new2x_fbb9e99.png');
+        width: 18px;
+        height: 27px;
+        display: inline-block;
+        background-size: 300px,auto;
+        background-position: -90px -139px;
+    }
+

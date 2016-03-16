@@ -1,0 +1,25 @@
+<extend name="Public/base" />
+<block name="content-header">
+    <section name="content-header">
+        <h1>
+    404 错误页面
+  </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 工作台</a></li>
+            <li class="active">404 错误</li>
+        </ol>
+    </section>
+</block>
+<block name="content">
+    <section name="content">
+        <div class="error-page">
+            <h2 class="headline text-yellow"> 404</h2>
+            <div class="error-content">
+                <h3><i class="fa fa-warning text-yellow"></i> Oops! 您请求的页面不存在</h3>
+                <p>
+                    你可以点击链接返回<a href="{:U('Admin/index/index')}">工作台</a>
+                </p>
+            </div>
+        </div>
+    </section>
+</block>

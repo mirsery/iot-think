@@ -1,0 +1,173 @@
+<extend name="Public/base" />
+<block name="style">
+    <title> {$Think.config.title} | 角色管理 </title>
+    <link rel="stylesheet" href="__PUBLIC__/plugins/datatables/dataTables.bootstrap.css">
+</block>
+<block name="content-header">
+    <section class="content-header">
+        <h1>
+        角色管理
+      </h1>
+        <ol class="breadcrumb">
+            <li><a href="{:U('Admin/index/index')}"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li>用户权限</li>
+            <li class="active">角色管理</li>
+        </ol>
+    </section>
+</block>
+<block name="content">
+    <section class="content">
+        <div class="row">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title"></h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="list" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>角色</th>
+                                <th>描述</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <!-- tbody是必须的 -->
+                    </table>
+                    <!-- Button trigger modal -->
+                </div>
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+</block>
+<block name="modal">
+    <include file="AuthRole:add_modal" />
+    <include file="Public:del_modal" />
+    <!-- Modal -->
+    <div class="modal fade" id="config-modal" tabindex="-1" role="dialog" aria-labelledby="config-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="configModalLabel">权限配置</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="config-id">
+                    </div>
+                    <div class="panel panel-success">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"></h3>
+                        </div>
+                        <div class="panel-body" id="node"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-config">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="script">
+    <script src="__PUBLIC__/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+    <script src="__PUBLIC__/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="__PUBLIC__/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="__PUBLIC__/plugins/datatables/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/admin/js/app.datatables.js"></script>
+    <script src="__PUBLIC__/admin/js/jQuery.datatables.cn.js"></script>
+    <script>
+    /* 初始化Datables */
+    var table = $('#list').DataTable({
+        "serverSide": true,
+        "processing": true,
+        "ajax": {
+            url: "listsDatatables",
+            type: "post",
+            error: function(){
+                toastr.error("载入失败",'',{timeOut: '2000', positionClass: 'toast-top-center' });
+            }
+        },
+        columns: [{
+            "data": "id",
+        }, {
+            "data": "name"
+        }, {
+            "data": "remark"
+        }, {
+            "data": "status"
+        }, {
+            "data": null
+        }, ],
+        columnDefs: [{
+            sDefaultContent: '',
+            aTargets: ['_all']
+        }, {
+            "targets": 0,
+            "visible": false
+        }, {
+            "targets": 3,
+            "render": function(data, type, row) {
+                var html = '';
+                if (row.status == 1)
+                    html = '<span class="label label-success">启用</span>';
+                else
+                    html = '<span class="label label-danger">禁用</span>';
+                return html;
+            }
+        }, {
+            "targets": 4,
+            "searchable": false,
+            "render": function(data, type, row) {
+                var html = " <a class='glyphicon glyphicon-edit text-success' onclick='doedit(\"" + row.id + "\",\"" + row.name + "\",\"" + row.remark + "\",\"" + row.status + "\")'></a> " +
+                    "<a class='glyphicon glyphicon-remove text-danger' onclick='del(\"" + row.id + "\")'></a>" +
+                    "<a class='glyphicon glyphicon-cog text-warning' onclick='config(\"" + row.id + "\")'></a>";
+                return html;
+            }
+        }],
+        "dom": "<'row'<'col-xs-2'l><'#mytool.col-xs-4'><'col-xs-6'f>r>" +
+            "t<'row'<'col-xs-6'i><'col-xs-6'p>>",
+        initComplete: function() {
+            $("#mytool").append('<button id="create" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add-modal">添加</button>&nbsp');
+            toastr.success("载入成功",'',{timeOut: '1800', positionClass: 'toast-top-center' });
+        }
+    });
+    datatableUtil.customFilter('list_filter');
+    datatableUtil.changeFilterTrigger(table);
+
+    /* 让检索支持按列检索 */
+    $("#searchColumn").select2({
+        data: [{
+            "id": "0",
+            "text": "所有"
+        }, {
+            "id": "1",
+            "text": "角色"
+        }, {
+            "id": "4",
+            "text": "状态"
+        }],
+        width: "110px",
+    });
+
+    /**
+     *编辑方法
+     **/
+    function doedit(id, name, remark, status) {
+
+        $("#add-modal-label").text("修改");
+        $("#sys-id").val(id);
+        $("#sys-role").val(name);
+        $("#sys-remark").val(remark);
+        $("#status").val(status);
+        $("#add-modal").modal("show");
+    }
+    </script>
+</block>

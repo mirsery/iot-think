@@ -1,0 +1,38 @@
+<div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="add-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="add-modal-label">新增</h4>
+            </div>
+            <block name="modal-body"></block>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="save">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<block name="add-modal-script"></block>
+<script>
+/* 清空对话框中的数据 */
+$("#add-modal").on('hide.bs.modal', function() {
+
+    var fv = $("#add-modal").data('formValidation');
+
+    if (fv != undefined)
+        fv.resetForm();
+
+    var formControls = $('#add-modal .form-control');
+
+    $.each(formControls, function(index, value) {
+        if ($(value).hasClass('form-select2')) {
+            $(value).select2('val', '');
+        } else {
+            $(value).val('');
+        }
+    });
+
+    $("#add-modal-label").text("新增");
+});
+</script>

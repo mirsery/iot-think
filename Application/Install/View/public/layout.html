@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+     <title>安装{:C('INSTALL_PRODUCT_NAME')}－{$meta_title}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="__PUBLIC__/plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="__PUBLIC__/plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="__PUBLIC__/plugins/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="__PUBLIC__/plugins/formValidation/formValidation.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/plugins/select2/select2.min.css">
+    <link rel="stylesheet" href="__THEME__/adminlte/css/AdminLTE.min.css" />
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+    folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="__THEME__/adminlte/css/skins/_all-skins.min.css">
+
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+    <div class="navbar navbar-inverse navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="sr-only">导航开关</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" target="_blank" href="__ROOT__/">{:C('INSTALL_PRODUCT_NAME')}</a>
+            </div>
+            <div class="collapse navbar-collapse nav-collapse">
+                <ul class="nav navbar-nav" id="step">
+                    <block name="header"></block>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="{:C('INSTALL_WEBSITE_DOMAIN')}" target="_blank">官网</a></li>
+                    <li><a href="{:C('INSTALL_WEBSITE_DOMAIN')}" target="_blank">授权</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <block name="main"></block>
+        </div>
+    </div>
+
+
+    <script src="__PUBLIC__/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+    <script src="__PUBLIC__/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="__PUBLIC__/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+    <script src="__THEME__/adminlte/js/app.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="__THEME__/adminlte/js/demo.js"></script>
+    
+    <block name='script'></block>
+
+</body>
+</html>
+

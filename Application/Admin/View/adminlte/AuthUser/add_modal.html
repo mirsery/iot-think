@@ -1,0 +1,128 @@
+<extend name="Public:add_modal" />
+<block name="modal-body">
+    <div class="modal-body">
+        <div class="form-group">
+            <input type="hidden" class="form-control" id="id">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="username" name="username" placeholder="用户名">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="email" name="email" placeholder="电子邮箱">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="password" name="password" placeholder="密码">
+        </div>
+        <div class="form-group">
+            <select class="form-control" id="status">
+                <option value='1'>启用</option>
+                <option value='0'>禁用</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select id="role" class="form-control form-select2" style="width: 100%;" data-placeholder="请选择角色" multiple="multiple">
+            </select>
+        </div>
+    </div>
+</block>
+<block name="add-modal-script">
+    <script>
+    /* 初始化Role Select2 */
+    $.ajax({
+        url: "listsRoleName",
+        data: {},
+        success: function(data) {
+
+            $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+            $("#role").select2({
+
+                data: data,
+                allowClear: true
+
+            });
+        },
+        error: function(data) {
+            alert("{$Think.Config.WARNING_MSG}");
+        }
+    });
+
+
+    /* 初始化 FormValidation 模块 */
+    $('#add-modal').formValidation({
+        framework: 'bootstrap',
+        message: '信息不能为空',
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            username: {
+                validators: {
+                    notEmpty: {
+                        message: '请输入用户名'
+                    }
+                }
+            },
+            email: {
+                validators: {
+                    emailAddress: {
+                        message: '请输入正确的邮箱地址'
+                    },
+                }
+            },
+            role_name: {
+                validators: {
+                    notEmpty: {
+                        message: '请选择角色'
+                    },
+                }
+            },
+        }
+    });
+
+
+
+    /* 保存数据 */
+    $("#save").click(function() {
+
+        $('#add-modal').formValidation('validate');
+
+        if ($('#add-modal').data('formValidation').isValid()) {
+
+            var remark = '';
+            $.each($("#role").select2('data'), function(index, val) {
+                remark = remark + val['text'] + ',';
+            });
+
+            remark = remark.substring(0, remark.length - 1);
+            // console.log($("#role").val());
+            $.ajax({
+                url: "save",
+                data: {
+                    "id": $("#id").val(),
+                    "username": $('#username').val(),
+                    "email": $('#email').val(),
+                    "password": $("#password").val(),
+                    "status": $("#status").val(),
+                    "remark": remark,
+                    "role": $("#role").val(),
+                },
+                success: function(data) {
+                    console.log(data);
+
+                    if(data.status){
+                        $("#add-modal").modal("hide");
+                        table.ajax.reload(null, false);
+                        $("#add-modal-label").text("新增");
+                        toastr.success("保存成功",'',{timeOut: '1800', positionClass: 'toast-top-center' });
+                    }else {
+                        toastr.error("保存失败",'',{timeOut: '2000', positionClass: 'toast-top-center' });
+
+                    };
+                }
+            });
+        }
+    });
+    </script>
+</block>

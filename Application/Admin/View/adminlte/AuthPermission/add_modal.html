@@ -1,0 +1,130 @@
+<extend name="Public:add_modal" />
+<block name="modal-body">
+    <div class="modal-body">
+        <div class="form-group">
+            <input type="hidden" class="form-control" id="sys-id">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="sys-title" name="sys-title" placeholder="名称">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="sys-code" name="sys-code" placeholder="代码">
+        </div>
+        <div class="form-group">
+            <select class="form-control" id="sys-level" style="width: 100%;" data-placeholder="请选择类型">
+                <option></option>
+                <option value="1">项目</option>
+                <option value="2">模块</option>
+                <option value="3">操作</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control" id="sys-pname" style="width: 100%;" data-placeholder="请选择分组">
+            </select>
+        </div>
+    </div>
+</block>
+<block name="add-modal-script">
+    <script>
+    // $.ajax({
+    //   url: "queryRoleNameByJson",
+    //   // url: "queryPnameListByJson",
+    //   data: {},
+    //   success: function (data) {
+    //     //console.log(data);
+    //     $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+    //     $("#sys-pname").select2({
+    //       data: data,
+    //     });
+
+    //   },
+    //   error: function(data) {
+    //     alert("{$Think.Config.WARNING_MSG}");
+    //   }
+    // });
+
+    $('#sys-level').select2({
+        allowClear: true,
+    });
+
+    $('#sys-level').on('select2:select', function(e, pid) {
+        $.ajax({
+            url: "queryPnameListByJson",
+            data: {
+                "level": $('#sys-level').val()
+            },
+            success: function(data) {
+                $('#sys-pname').empty();
+                $('#sys-pname').select2({
+                    data: data,
+                    allowClear: true
+                });
+                if (pid != null)
+                    $('#sys-pname').select2('val', pid);
+            }
+        });
+    });
+
+
+    $('#add-modal').formValidation({
+        framework: 'bootstrap',
+        message: '信息不能为空',
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            role_name: {
+                validators: {
+                    notEmpty: {
+                        message: '角色名称不能为空'
+                    }
+                }
+            },
+            description: {
+                validators: {
+                    notEmpty: {
+                        message: '请描述职能'
+                    }
+                }
+            },
+        }
+    });
+
+
+    /**
+     * 保存数据
+     **/
+    $("#save").click(function() {
+        $('#add-modal').formValidation('validate');
+        if ($('#add-modal').data('formValidation').isValid()) {
+            var addJson = {
+                "sys-id": $("#sys-id").val(),
+                "sys-code": $("#sys-code").val(),
+                "sys-title": $('#sys-title').val(),
+                "sys-level": $('#sys-level').val(),
+                'sys-pid': $('#sys-pname').val(),
+            };
+
+            $.ajax({
+                url: "save",
+                data: {
+                    "sys-id": addJson.id,
+                    "sys-code": addJson.name,
+                    "sys-title": addJson.title,
+                    "sys-level": addJson.level,
+                    "sys-pid": addJson.pid,
+                },
+                success: function(data) {
+                    $("#add-modal").modal("hide");
+                    toastr.success("保存成功",'',{timeOut: '1800', positionClass: 'toast-top-center' });
+                    table.ajax.reload(null, false);
+                    $("#add-modal-label").text("新增");
+                    clear();
+                }
+            });
+        }
+    });
+    </script>
+</block>
